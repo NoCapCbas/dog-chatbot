@@ -21,14 +21,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application
 COPY . .
 
-# Download the Mistral model
-RUN ollama pull mistral
+# Start Ollama service and pull the model
+RUN ollama serve & \
+    sleep 10 && \
+    ollama pull mistral
 
 # Expose the port Streamlit runs on
-EXPOSE 8501
+EXPOSE 8080
 
 # Create a shell script to start both Ollama and Streamlit
-RUN echo '#!/bin/bash\nollama serve & sleep 5 && streamlit run app.py --server.address=0.0.0.0' > start.sh
+RUN echo '#!/bin/bash\nollama serve & sleep 5 && streamlit run app.py --server.address=0.0.0.0 --server.port=8080' > start.sh
 RUN chmod +x start.sh
 
 # Command to run the script

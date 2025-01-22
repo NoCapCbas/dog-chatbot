@@ -8,7 +8,10 @@ from langchain.chains import ConversationalRetrievalChain
 
 DB_FAISS_PATH = 'vectorstore/db_faiss'
 CSV_FILE_PATH = r'dogs_cleaned.csv'  # Replace with your CSV file path
-
+st.set_page_config(
+    page_title="Dog Breed Assistant",
+    page_icon="🐕",
+)
 # Hide Streamlit's default menu and footer
 hide_streamlit_style = """
             <style>
@@ -18,6 +21,7 @@ hide_streamlit_style = """
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 
 #Loading the model
 def load_llm():
