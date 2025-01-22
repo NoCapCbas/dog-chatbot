@@ -47,4 +47,4 @@ jobs:
           context: .
           file: dockerfile.prod
           push: true
-          tags: ghcr.io/nocapcbas/math-assistant-chatbot:prod
+          tags: ghcr.io/nocapcbas/math-chatbot:prod
