@@ -36,7 +36,7 @@ COPY dogs_cleaned.csv .
 # Start Ollama, pull model, and clean up unnecessary files
 RUN ollama serve & \
     sleep 10 && \
-    ollama pull mistral && \
+    ollama pull phi && \
     rm -rf /root/.cache
 
 EXPOSE 8080

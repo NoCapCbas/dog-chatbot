@@ -27,7 +27,8 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 def load_llm():
     # Load Mistral through Ollama
     llm = Ollama(
-        model="mistral",  # Using Mistral 7B - a powerful open source model
+        # model="mistral",  # Using Mistral 7B - a powerful open source model
+        model="phi",
         temperature=0.5,
     )
     return llm
@@ -49,8 +50,9 @@ def load_and_process_data():
     chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever=db.as_retriever())
     return chain
 
-st.title("🐕 Dog Breed Assistant 🦮")
+st.markdown("<h1 style='text-align: center; color: white;'>🐕 Dog Breed Assistant 🦮</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center; color: white;'>Your Friendly Guide to Dog Breeds</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center; color: red;'> This chatbot uses open source model Phi due to its smaller size and faster response time</h3>", unsafe_allow_html=True)
 
 # Load the chain once at startup
 chain = load_and_process_data()
