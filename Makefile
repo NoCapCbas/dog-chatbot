@@ -1,8 +1,8 @@
 build:
-	docker build -t dog-breed-assistant-chatbot .
+	docker build -f dockerfile.prod -t math-assistant-chatbot .
 
 run:
-	docker run -p 8501:8501 dog-breed-assistant-chatbot
+	docker run -p 8080:8080 math-assistant-chatbot
 
 local:
 	streamlit run app.py --server.port=8080

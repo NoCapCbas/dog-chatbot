@@ -1,10 +1,10 @@
-# Dog Breed Assistant Chatbot
+# Math Assistant Chatbot
 
-This is a chatbot using Llama 2, Sentence Transformers, CTransformers, Langchain, and Streamlit.
+This is a chatbot using Phi 3, Sentence Transformers, CTransformers, Langchain, and Streamlit.
 
-A Streamlit-based chatbot that helps users learn about different dog breeds. Built with:
+A Streamlit-based chatbot that helps users learn about different math problems. Built with:
 - Streamlit for the web interface
-- Mistral 7B (via Ollama) for the language model
+- Phi 3 (via Ollama) for the language model
 - FAISS for vector storage
 - LangChain for the conversation chain
 

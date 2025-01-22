@@ -1,4 +1,4 @@
-name: Dog Breed Assistant Chatbot
+name: Math Assistant Chatbot
 on:
   push:
     branches:
@@ -47,4 +47,4 @@ jobs:
           context: .
           file: dockerfile.prod
           push: true
-          tags: ghcr.io/nocapcbas/dog-breed-assistant-chatbot:prod
+          tags: ghcr.io/nocapcbas/math-assistant-chatbot:prod
