@@ -1,10 +1,12 @@
 import streamlit as st 
+import pandas as pd
 from streamlit_chat import message
 from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.llms import Ollama
 from langchain.chains import ConversationalRetrievalChain
+import time
 
 DB_FAISS_PATH = 'vectorstore/db_faiss'
 CSV_FILE_PATH = r'dogs_cleaned.csv'  # Replace with your CSV file path
@@ -27,8 +29,8 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 def load_llm():
     # Load Mistral through Ollama
     llm = Ollama(
-        # model="mistral",  # Using Mistral 7B - a powerful open source model
-        model="phi",
+        model="mistral",  # Using Mistral 7B - a powerful open source model
+        # model="phi",
         temperature=0.5,
     )
     return llm
@@ -57,12 +59,66 @@ st.markdown("<h3 style='text-align: center; color: red;'> This chatbot uses open
 # Load the chain once at startup
 chain = load_and_process_data()
 
+def is_dog_related(query):
+    # List of dog-related keywords
+    dog_keywords = [
+        'dog', 'breed', 'puppy', 'canine', 'hound', 'terrier', 'shepherd', 
+        'retriever', 'poodle', 'bulldog', 'labrador', 'german', 'golden',
+        'bark', 'pet', 'training', 'grooming', 'walk', 'leash', 'collar',
+        'kennel', 'veterinary', 'vet', 'pup', 'pooch', 'dog breed', 'dog breeds',
+        'chew', 'bite', 'paw', 'paws', 'paw print', 'paw print', 'paw print', 'paw print',
+    ]
+    # read first column of csv file
+    df = pd.read_csv(CSV_FILE_PATH)
+    df = df.iloc[:, 0]
+    # add all the values in the first column to the dog_keywords list as lowercase
+    dog_keywords.extend(df.str.lower().tolist())
+    # Convert query to lowercase for case-insensitive matching
+    query_lower = query.lower()
+    
+    # Check if any dog-related keyword is in the query
+    return any(keyword in query_lower for keyword in dog_keywords)
+
 def conversational_chat(query):
+    current_time = time.time()
+    
+    # Rate limit check
+    if 'last_query_time' in st.session_state:
+        time_since_last_query = current_time - st.session_state.last_query_time
+        if time_since_last_query < 10:
+            remaining_time = int(10 - time_since_last_query)
+            st.error(f"Rate limit exceeded! ⏳ Please wait {remaining_time} seconds before sending another message! This is to prevent abuse and overload my server. This rate limit is applied to all users. Resend you query to continue and Thanks for your patience!")
+            return None
+
+    # Check if query is dog-related
+    if not is_dog_related(query):
+        return "I am a dog breed expert assistant. I can only answer questions about dogs and dog breeds. Please ask me about dogs! 🐕"
+
+    st.session_state.last_query_time = current_time
+
     with st.spinner('🐾 Fetching response... Thank you for your patience! 🐕'):
-        # Add context about ratings to the query
-        context = """In the data, ratings are on a scale where higher numbers (like 5) mean the breed performs 
-        better in that category, and lower numbers (like 1) mean the breed performs worse in that category. 
-        Please consider this when answering. """
+        context = """You are a dog breed expert assistant. You must ONLY answer questions about dogs and dog breeds.
+        If the question is not about dogs, respond with "I am a dog breed expert assistant. I can only answer questions about dogs and dog breeds."
+
+        These are the columns in the data:
+        Breed Name,Detailed Description Link,Dog Size,Dog Breed Group,Height,"Avg. Height, cm",Weight,"Avg. Weight, kg",Life Span,"Avg. Life Span, years",Adaptability,Adapts Well To Apartment Living,Good For Novice Owners,Sensitivity Level,Tolerates Being Alone,Tolerates Cold Weather,Tolerates Hot Weather,All Around Friendliness,Affectionate With Family,Kid-Friendly,Dog Friendly,Friendly Toward Strangers,Health And Grooming Needs,Amount Of Shedding,Drooling Potential,Easy To Groom,General Health,Potential For Weight Gain,Size,Trainability,Easy To Train,Intelligence,Potential For Mouthiness,Prey Drive,Tendency To Bark Or Howl,Wanderlust Potential,Physical Needs,Energy Level,Intensity,Exercise Needs,Potential For Playfulness
+
+        The data contains ratings on a scale of 1-5 for columns (Adaptability, Adapts Well To Apartment Living, Good For Novice Owners, Sensitivity Level, Tolerates Being Alone, Tolerates Cold Weather, Tolerates Hot Weather, All Around Friendliness, Affectionate With Family, Kid-Friendly, Dog Friendly, Friendly Toward Strangers, Health And Grooming Needs, Amount Of Shedding, Drooling Potential, Easy To Groom, General Health, Potential For Weight Gain, Size, Trainability, Easy To Train, Intelligence, Potential For Mouthiness, Prey Drive, Tendency To Bark Or Howl, Wanderlust Potential, Physical Needs, Energy Level, Intensity, Exercise Needs, Potential For Playfulness) where:
+        - 5 is the BEST/HIGHEST score (excellent)
+        - 4 is ABOVE AVERAGE
+        - 3 is AVERAGE
+        - 2 is BELOW AVERAGE
+        - 1 is the WORST/LOWEST score (poor)
+        
+        Important rules:
+        1. NEVER answer questions that are not about dogs
+        2. Do not mention the data or ratings in your response
+        3. If unsure, say "Sorry, I don't know the answer to that question"
+        4. Keep responses focused only on dogs and dog breeds
+        5. Be friendly and helpful, but stay strictly within dog-related topics
+        
+        User Question: """
+        
         enhanced_query = context + query
         
         result = chain({"question": enhanced_query, "chat_history": st.session_state['history']})
