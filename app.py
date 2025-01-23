@@ -22,7 +22,7 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 def load_llm():
     # Load Phi-2 through Ollama
     llm = Ollama(
-        model="phi3",  # Using Phi-2 - good balance of size and math capability
+        model="phi",  # Using Phi - good balance of size and math capability
         temperature=0.1,  # Lower temperature for more precise math
     )
     return llm

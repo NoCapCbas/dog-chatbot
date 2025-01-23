@@ -24,7 +24,7 @@ COPY . .
 # Start Ollama service and pull the model
 RUN ollama serve & \
     sleep 10 && \
-    ollama pull phi3
+    ollama pull phi
 
 # Expose the port Streamlit runs on
 EXPOSE 8080
